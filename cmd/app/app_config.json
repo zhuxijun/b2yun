@@ -1,0 +1,16 @@
+{
+    "mssql":{
+        "parm": "sqlserver://sa:kemai@192.168.64.18:1433?database=kerp_jlt" 
+    },
+    "http":{
+        "baseHost": "https://www.b2yun.com",
+        "basePath": "/cgi-bin"
+    },
+    "basic":{
+        "appid": "abfb790a9d38307176ddc889d002f374",
+        "secret": "6b1d802bf178beab4cea566407846a9a",
+        "tokenvalidtime":7200,
+        "timestamp":1557802326,
+        "token":"93e81efb73ef2ece2abcfe79ec1c02a8"
+    }
+}
