@@ -14,6 +14,25 @@ type MemberService struct {
 // DownloadMemberLevel 下载会员等级信息
 func (s *MemberService) DownloadMemberLevel() error {
 
+	path := "/users/index.php?action=get_user_rank"
+
+	reqStr, err := s.client.Get(path)
+	if err != nil {
+		return err
+	}
+
+	//插入信息
+	var commonResponse CommonResponseMemberLevel
+	err1 := json.Unmarshal([]byte(reqStr), &commonResponse)
+	if err1 != nil {
+		return err1
+	}
+
+	error := s.memberService.InsertMemberLevels(commonResponse.Data)
+	if error != nil {
+		return error
+	}
+
 	return nil
 }
 
@@ -47,10 +66,10 @@ func (s *MemberService) UploadMemberInfo() error {
 		return err1
 	}
 
-	memberInfo := memberInfos[0]
+	memberInfo := memberInfos[len(memberInfos)]
 
 	task := root.Task{
-		Name: "MemberEntity",
+		Name: "MemberInfoEntity",
 		ID:   memberInfo.TransID,
 	}
 

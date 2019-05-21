@@ -1,5 +1,9 @@
 package http
 
+import (
+	root "b2yun/pkg"
+)
+
 // // StringPair 签名值对
 // type StringPair map[string]string
 
@@ -87,13 +91,45 @@ package http
 // 	return pair
 // }
 
-// CommonResponse 门店返回值
+// CommonResponse POST类型或GET无返回数据类型的通用返回值
 type CommonResponse struct {
 	ErrCode     int    `json:"status"`
 	ErrMsg      string `json:"message"`
 	TimeStamp   int64  `json:"timestamp"`
 	AccessToken string `json:"access_token"`
-	Data        string `json:"data"`
 	Pages       int    `json:"pages"`
 	Next        bool   `json:"next"`
+}
+
+// CommonResponseOrder GET返回的订单详情
+type CommonResponseOrder struct {
+	ErrCode     int             `json:"status"`
+	ErrMsg      string          `json:"message"`
+	TimeStamp   int64           `json:"timestamp"`
+	AccessToken string          `json:"access_token"`
+	Data        []root.ReqOrder `json:"data"`
+	Pages       int             `json:"pages"`
+	Next        bool            `json:"next"`
+}
+
+// CommonResponseMemberLevel GET返回的会员等级
+type CommonResponseMemberLevel struct {
+	ErrCode     int                   `json:"status"`
+	ErrMsg      string                `json:"message"`
+	TimeStamp   int64                 `json:"timestamp"`
+	AccessToken string                `json:"access_token"`
+	Data        []root.ReqMemberLevel `json:"data"`
+	Pages       int                   `json:"pages"`
+	Next        bool                  `json:"next"`
+}
+
+// CommonResponseMemberInfo GET返回的会员信息
+type CommonResponseMemberInfo struct {
+	ErrCode     int                  `json:"status"`
+	ErrMsg      string               `json:"message"`
+	TimeStamp   int64                `json:"timestamp"`
+	AccessToken string               `json:"access_token"`
+	Data        []root.ReqMemberInfo `json:"data"`
+	Pages       int                  `json:"pages"`
+	Next        bool                 `json:"next"`
 }

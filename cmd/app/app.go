@@ -109,14 +109,14 @@ func (a *App) Run() error {
 	if err := memberService.DownloadMemberLevel(); err != nil {
 		return err
 	}
-	//2)获取会员信息GET
-	if err := memberService.DownloadMemberInfo(); err != nil {
-		return err
-	}
-	//3)更新会员信息POST
-	if err := memberService.UploadMemberInfo(); err != nil {
-		return err
-	}
+	// //2)获取会员信息GET
+	// if err := memberService.DownloadMemberInfo(); err != nil {
+	// 	return err
+	// }
+	// //3)更新会员信息POST
+	// if err := memberService.UploadMemberInfo(); err != nil {
+	// 	return err
+	// }
 
 	a.log.Logger.Info("结束运行...")
 

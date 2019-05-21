@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -105,7 +106,7 @@ func (c *Client) Post(url string, reqStr string) error {
 		return err
 	}
 
-	respStr, err := handleResponse(resp)
+	respStr, err := handleResponse(resp, url)
 	if err != nil {
 		c.log.Logger.Errorf("本次请求出现错误,错误信息[%s]", err.Error())
 		return err
@@ -132,7 +133,7 @@ func (c *Client) Get(url string) (string, error) {
 		return "", err
 	}
 
-	respStr, err := handleResponse(resp)
+	respStr, err := handleResponse(resp, url)
 	if err != nil {
 		c.log.Logger.Errorf("本次请求出现错误,错误信息[%s]", err.Error())
 		return "", err
@@ -227,29 +228,101 @@ func (c *Client) handleResponseToken(resp *http.Response) (root.Basic, error) {
 }
 
 // handleResponse 处理http响应信息, errCode不为0则返回错误
-func handleResponse(resp *http.Response) (string, error) {
+func handleResponse(resp *http.Response, url string) (string, error) {
 
 	defer resp.Body.Close()
 
-	var respBody CommonResponse
-	err := json.NewDecoder(resp.Body).Decode(&respBody)
-	if err != nil {
-		return "", err
+	var respBody1 CommonResponse
+	var respBody2 CommonResponseOrder
+	var respBody3 CommonResponseMemberLevel
+	var respBody4 CommonResponseMemberInfo
+
+	if strings.Index(url, "action=get_order_info") > 0 {
+
+		err := json.NewDecoder(resp.Body).Decode(&respBody2)
+		if err != nil {
+			return "", err
+		}
+
+		if respBody2.ErrCode != 0 {
+			var customError root.Error
+			customError.Code = strconv.Itoa(respBody2.ErrCode)
+			customError.Message = respBody2.ErrMsg
+			return "", &customError
+		}
+
+		respStr, err := json.Marshal(respBody2)
+		if err != nil {
+			return "", err
+		}
+
+		return string(respStr), nil
+
+	} else if strings.Index(url, "action=get_user_rank") > 0 {
+
+		err := json.NewDecoder(resp.Body).Decode(&respBody3)
+		if err != nil {
+			return "", err
+		}
+
+		if respBody3.ErrCode != 0 {
+			var customError root.Error
+			customError.Code = strconv.Itoa(respBody3.ErrCode)
+			customError.Message = respBody3.ErrMsg
+			return "", &customError
+		}
+
+		respStr, err := json.Marshal(respBody3)
+		if err != nil {
+			return "", err
+		}
+
+		return string(respStr), nil
+
+	} else if strings.Index(url, "action=get_users_info") > 0 {
+
+		err := json.NewDecoder(resp.Body).Decode(&respBody4)
+		if err != nil {
+			return "", err
+		}
+
+		if respBody4.ErrCode != 0 {
+			var customError root.Error
+			customError.Code = strconv.Itoa(respBody4.ErrCode)
+			customError.Message = respBody4.ErrMsg
+			return "", &customError
+		}
+
+		respStr, err := json.Marshal(respBody4)
+		if err != nil {
+			return "", err
+		}
+
+		return string(respStr), nil
+
+	} else {
+
+		err := json.NewDecoder(resp.Body).Decode(&respBody1)
+		if err != nil {
+			return "", err
+		}
+
+		if respBody1.ErrCode != 0 {
+			var customError root.Error
+			customError.Code = strconv.Itoa(respBody1.ErrCode)
+			customError.Message = respBody1.ErrMsg
+			return "", &customError
+		}
+
+		respStr, err := json.Marshal(respBody1)
+		if err != nil {
+			return "", err
+		}
+
+		return string(respStr), nil
+
 	}
 
-	if respBody.ErrCode != 0 {
-		var customError root.Error
-		customError.Code = strconv.Itoa(respBody.ErrCode)
-		customError.Message = respBody.ErrMsg
-		return "", &customError
-	}
-
-	respStr, err := json.Marshal(respBody)
-	if err != nil {
-		return "", err
-	}
-
-	return string(respStr), nil
 }
 
 // CatService 分类信息服务

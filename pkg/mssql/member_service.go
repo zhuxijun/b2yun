@@ -2,6 +2,7 @@ package mssql
 
 import (
 	root "b2yun/pkg"
+	"database/sql"
 )
 
 // MemberService 会员服务
@@ -9,12 +10,77 @@ type MemberService struct {
 	session *Session
 }
 
+// InsertMemberLevels 将获取到的会员等级插入erp数据库
+func (s *MemberService) InsertMemberLevels(datas []root.ReqMemberLevel) error {
+
+	var flevelno string
+	for _, data := range datas {
+
+		err := s.session.db.QueryRow("select flevel_no as flevelno from t_bn_level where flevel_no = ?", data.RankID).Scan(&flevelno)
+
+		if err == sql.ErrNoRows {
+			_, err1 := s.session.db.Exec("insert into t_bn_level(flevel_no,flevel_name) values(?,?)", data.RankID, data.RankName)
+
+			if err1 != nil {
+				return err1
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// InsertMemberInfos 将获取到的会员信息插入erp数据库
+func (s *MemberService) InsertMemberInfos(datas []root.ReqMemberInfo) error {
+
+	var fuserno string
+	for _, data := range datas {
+
+		err := s.session.db.QueryRow("select fuser_no as fuserno from t_br_user where fuser_no = ?", data.UserID).Scan(&fuserno)
+
+		if err == sql.ErrNoRows {
+			_, err1 := s.session.db.Exec(`insert into t_br_user(fuser_no,fuser_name,faddress_id,faddress_name,fconsignee,ftel,fmobile,femail,fcountry,fprovince,fcity,fdistrict,faddress,fzipcode,fsign_building,fbest_time,foper_time
+											) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, data.UserID, data.UserName, data.AddressID, data.AddressName, data.Consignee, data.Tel, data.Mobile, data.Email, data.Country, data.Province, data.City, data.District, data.Address, data.Zipcode, data.SignBuilding, data.BestTime, data.OperTime)
+
+			if err1 != nil {
+				return err1
+			}
+		} else {
+			_, err1 := s.session.db.Exec(`update t_br_user set fuser_name = ?,faddress_id = ?,faddress_name = ?,fconsignee,ftel = ?,fmobile,femail = ?,fcountry = ?,fprovince = ?,fcity = ?,fdistrict = ?,faddress = ?,fzipcode = ?,fsign_building = ?,fbest_time = ?,foper_time = ?
+				`, data.UserName, data.AddressID, data.AddressName, data.Consignee, data.Tel, data.Mobile, data.Email, data.Country, data.Province, data.City, data.District, data.Address, data.Zipcode, data.SignBuilding, data.BestTime, data.OperTime)
+
+			if err1 != nil {
+				return err1
+			}
+		}
+
+	}
+
+	return nil
+}
+
 // GetMemberInfos 获取需要更新的会员信息列表
 func (s *MemberService) GetMemberInfos() ([]root.MemberInfo, error) {
 	var models []MemberInfoModel
 
 	err := s.session.db.Select(&models, `
-			select * from t_br_user`)
+			select user_id = t1.fuser_no,
+				fuser_name = '',
+				user_rank = t3.flevel_no,
+				branch_no = t1.fbrh_no,
+				is_enable = '1',
+				ftransid = (case when t3.ftransid > (case when t1.ftransid > t2.ftransid then t1.ftransid else t2.ftransid end) 
+								then t3.ftransid else (case when t1.ftransid > t2.ftransid then t1.ftransid else t2.ftransid end) end)
+			from t_br_user t1
+			left join t_br_master t2 on t1.fbrh_no = t2.fbrh_no
+			left join t_bn_master t3 on t2.fbn_no = t3.fbn_no
+			left join ts_t_transtype_info_mtq t5 WITH (NOLOCK) on (t5.fun_name='MemberInfoEntity')
+			WHERE (case when t3.ftransid > (case when t1.ftransid > t2.ftransid then t1.ftransid else t2.ftransid end) 
+					then t3.ftransid else (case when t1.ftransid > t2.ftransid then t1.ftransid else t2.ftransid end) end) > t5.ftransid
+			ORDER BY (case when t3.ftransid > (case when t1.ftransid > t2.ftransid then t1.ftransid else t2.ftransid end) 
+					then t3.ftransid else (case when t1.ftransid > t2.ftransid then t1.ftransid else t2.ftransid end) end) asc
+			`)
 	if err != nil {
 		return nil, err
 	}

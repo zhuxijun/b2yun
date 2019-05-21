@@ -35,7 +35,7 @@ func (s *BrandService) UploadBrands() error {
 		return err1
 	}
 
-	brand := brands[0]
+	brand := brands[len(brands)]
 
 	task := root.Task{
 		Name: "BrandEntity",
