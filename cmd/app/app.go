@@ -68,40 +68,40 @@ func (a *App) Run() error {
 
 	a.httpClient.InitService(option)
 
-	// //一、商品相关
-	// //1)分类信息传输POST
-	// catService := a.httpClient.CatService()
-	// if err := catService.UploadCats(); err != nil {
-	// 	return err
-	// }
+	//一、商品相关
+	//1)分类信息传输POST
+	catService := a.httpClient.CatService()
+	if err := catService.UploadCats(); err != nil {
+		return err
+	}
 
-	// //2)品牌信息传输POST
-	// brandService := a.httpClient.BrandService()
-	// if err := brandService.UploadBrands(); err != nil {
-	// 	return err
-	// }
+	//2)品牌信息传输POST
+	brandService := a.httpClient.BrandService()
+	if err := brandService.UploadBrands(); err != nil {
+		return err
+	}
 
-	// //3)商品信息传输POST
+	// // //3)商品信息传输POST
 	// goodsService := a.httpClient.GoodsService()
 	// if err := goodsService.UploadGoodss(); err != nil {
 	// 	return err
 	// }
 
-	// //二、订单相关
-	// orderService := a.httpClient.OrderService()
-	// //1)获取订单详情GET
-	// if err := orderService.DownOrderInfo(); err != nil {
-	// 	return err
-	// }
-	// //2)取消确认订单GET
-	// if err := orderService.CancelOrder(); err != nil {
-	// 	return err
-	// }
+	//二、订单相关
+	orderService := a.httpClient.OrderService()
+	//1)获取订单详情GET
+	if err := orderService.DownOrderInfo(); err != nil {
+		return err
+	}
+	//2)取消确认订单GET，已传输标志回写还未完成
+	if err := orderService.CancelOrder(); err != nil {
+		return err
+	}
 
-	// //3)更新物流状态POST
-	// if err := orderService.UploadOrderInfo(); err != nil {
-	// 	return err
-	// }
+	//3)更新物流状态POST，已传输标志回写还未完成
+	if err := orderService.UploadOrderInfo(); err != nil {
+		return err
+	}
 
 	//三、会员相关
 	memberService := a.httpClient.MemberService()
@@ -109,14 +109,14 @@ func (a *App) Run() error {
 	if err := memberService.DownloadMemberLevel(); err != nil {
 		return err
 	}
-	// //2)获取会员信息GET
-	// if err := memberService.DownloadMemberInfo(); err != nil {
-	// 	return err
-	// }
-	// //3)更新会员信息POST
-	// if err := memberService.UploadMemberInfo(); err != nil {
-	// 	return err
-	// }
+	//2)获取会员信息GET
+	if err := memberService.DownloadMemberInfo(); err != nil {
+		return err
+	}
+	//3)更新会员信息POST
+	if err := memberService.UploadMemberInfo(); err != nil {
+		return err
+	}
 
 	a.log.Logger.Info("结束运行...")
 

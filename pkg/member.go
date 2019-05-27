@@ -30,10 +30,10 @@ type ReqMemberInfo struct {
 // MemberInfo 更新会员信息
 type MemberInfo struct {
 	UserID   string `json:"user_id"`
-	UserName string `json:"user_name,omitempty"`
+	UserName string `json:"user_name"`
 	UserRank string `json:"user_rank"`
 	BranchNO string `json:"branch_no"`
-	IsEnable string `json:"is_enable,omitempty"`
+	IsEnable string `json:"is_enable"`
 	TransID  string `json:"-"` //修改时间戳
 }
 

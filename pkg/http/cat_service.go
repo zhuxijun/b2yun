@@ -20,6 +20,10 @@ func (s *CatService) UploadCats() error {
 		return error
 	}
 
+	if len(cats) == 0 {
+		return nil
+	}
+
 	//----------------------------------------------------
 	path := "/goods/index.php?action=update_cat_info"
 

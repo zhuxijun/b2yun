@@ -13,7 +13,6 @@ type MemberService struct {
 
 // DownloadMemberLevel 下载会员等级信息
 func (s *MemberService) DownloadMemberLevel() error {
-
 	path := "/users/index.php?action=get_user_rank"
 
 	reqStr, err := s.client.Get(path)
@@ -38,6 +37,24 @@ func (s *MemberService) DownloadMemberLevel() error {
 
 // DownloadMemberInfo 下载会员信息
 func (s *MemberService) DownloadMemberInfo() error {
+	path := "/users/index.php?action=get_users_info&last_day=10"
+
+	reqStr, err := s.client.Get(path)
+	if err != nil {
+		return err
+	}
+
+	//插入信息
+	var commonResponse CommonResponseMemberInfo
+	err1 := json.Unmarshal([]byte(reqStr), &commonResponse)
+	if err1 != nil {
+		return err1
+	}
+
+	error := s.memberService.InsertMemberInfos(commonResponse.Data)
+	if error != nil {
+		return error
+	}
 
 	return nil
 }
@@ -49,6 +66,10 @@ func (s *MemberService) UploadMemberInfo() error {
 
 	if error != nil {
 		return error
+	}
+
+	if len(memberInfos) == 0 {
+		return nil
 	}
 
 	path := "/users/index.php?action=update_users_info"
@@ -66,7 +87,7 @@ func (s *MemberService) UploadMemberInfo() error {
 		return err1
 	}
 
-	memberInfo := memberInfos[len(memberInfos)]
+	memberInfo := memberInfos[len(memberInfos)-1]
 
 	task := root.Task{
 		Name: "MemberInfoEntity",

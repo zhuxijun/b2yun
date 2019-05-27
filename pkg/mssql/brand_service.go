@@ -15,7 +15,7 @@ func (s *BrandService) GetBrands() ([]root.Brand, error) {
 	var models []BrandModel
 
 	err := s.session.db.Select(&models,
-		`   SELECT top 1 fitem_brdno = t1.fitem_brdno,
+		`   SELECT fitem_brdno = t1.fitem_brdno,
 				   fitem_brdname = t1.fitem_brdname,
 				   is_show = '1',
 				   ftransid = (select max(ftransid) from t_bb_master)

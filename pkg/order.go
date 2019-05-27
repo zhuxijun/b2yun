@@ -20,7 +20,7 @@ type ReqOrder struct {
 	PostScript   string   `json:"postscript"`    //订单留言,由用户提交订单前填写
 	ShippingName string   `json:"shipping_name"` //配送方式
 	PayName      string   `json:"pay_name"`      //付款方式
-	DoodsAmount  string   `json:"goods_amount"`  //商品金额
+	GoodsAmount  string   `json:"goods_amount"`  //商品金额
 	ShippingFee  string   `json:"shipping_fee"`  //配送费
 	InsureFee    string   `json:"insure_fee"`    //保价费用
 	PayFee       string   `json:"pay_fee"`       //支付费用（如支付手续费）
@@ -79,7 +79,7 @@ type OrderStatus struct {
 
 // Orderer 订单相关接口
 type Orderer interface {
-	//InsertOrders() ([]ReqOrder, error) //从小程序获取订单详情后插入erp接口
+	InsertOrders([]ReqOrder) error //从小程序获取订单详情后插入erp接口
 	GetOrderCancels() ([]OrderCancel, error)
 	GetOrderStatuss() ([]OrderStatus, error) //更新物流状态,将erp订单状态更新至小程序
 

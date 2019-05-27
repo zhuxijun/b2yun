@@ -47,8 +47,8 @@ func (s *MemberService) InsertMemberInfos(datas []root.ReqMemberInfo) error {
 				return err1
 			}
 		} else {
-			_, err1 := s.session.db.Exec(`update t_br_user set fuser_name = ?,faddress_id = ?,faddress_name = ?,fconsignee,ftel = ?,fmobile,femail = ?,fcountry = ?,fprovince = ?,fcity = ?,fdistrict = ?,faddress = ?,fzipcode = ?,fsign_building = ?,fbest_time = ?,foper_time = ?
-				`, data.UserName, data.AddressID, data.AddressName, data.Consignee, data.Tel, data.Mobile, data.Email, data.Country, data.Province, data.City, data.District, data.Address, data.Zipcode, data.SignBuilding, data.BestTime, data.OperTime)
+			_, err1 := s.session.db.Exec(`update t_br_user set fuser_name = ?,faddress_id = ?,faddress_name = ?,fconsignee = ?,ftel = ?,fmobile = ?,femail = ?,fcountry = ?,fprovince = ?,fcity = ?,fdistrict = ?,faddress = ?,fzipcode = ?,fsign_building = ?,fbest_time = ?,foper_time = ? where fuser_no = ?
+				`, data.UserName, data.AddressID, data.AddressName, data.Consignee, data.Tel, data.Mobile, data.Email, data.Country, data.Province, data.City, data.District, data.Address, data.Zipcode, data.SignBuilding, data.BestTime, data.OperTime, data.UserID)
 
 			if err1 != nil {
 				return err1
@@ -66,20 +66,20 @@ func (s *MemberService) GetMemberInfos() ([]root.MemberInfo, error) {
 
 	err := s.session.db.Select(&models, `
 			select user_id = t1.fuser_no,
-				fuser_name = '',
-				user_rank = t3.flevel_no,
-				branch_no = t1.fbrh_no,
+				user_name = t1.fuser_name,
+				user_rank = isnull(t3.flevel_no,''),
+				branch_no = isnull(t2.fbrh_no,''),
 				is_enable = '1',
-				ftransid = (case when t3.ftransid > (case when t1.ftransid > t2.ftransid then t1.ftransid else t2.ftransid end) 
-								then t3.ftransid else (case when t1.ftransid > t2.ftransid then t1.ftransid else t2.ftransid end) end)
+				ftransid = (case when isnull(t3.ftransid,0) > (case when t1.ftransid > isnull(t2.ftransid,0) then t1.ftransid else isnull(t2.ftransid,0) end) 
+						then isnull(t3.ftransid,0) else (case when t1.ftransid > isnull(t2.ftransid,0) then t1.ftransid else isnull(t2.ftransid,0) end) end)
 			from t_br_user t1
 			left join t_br_master t2 on t1.fbrh_no = t2.fbrh_no
 			left join t_bn_master t3 on t2.fbn_no = t3.fbn_no
 			left join ts_t_transtype_info_mtq t5 WITH (NOLOCK) on (t5.fun_name='MemberInfoEntity')
-			WHERE (case when t3.ftransid > (case when t1.ftransid > t2.ftransid then t1.ftransid else t2.ftransid end) 
-					then t3.ftransid else (case when t1.ftransid > t2.ftransid then t1.ftransid else t2.ftransid end) end) > t5.ftransid
-			ORDER BY (case when t3.ftransid > (case when t1.ftransid > t2.ftransid then t1.ftransid else t2.ftransid end) 
-					then t3.ftransid else (case when t1.ftransid > t2.ftransid then t1.ftransid else t2.ftransid end) end) asc
+			WHERE (case when isnull(t3.ftransid,0) > (case when t1.ftransid > isnull(t2.ftransid,0) then t1.ftransid else isnull(t2.ftransid,0) end) 
+				then isnull(t3.ftransid,0) else (case when t1.ftransid > isnull(t2.ftransid,0) then t1.ftransid else isnull(t2.ftransid,0) end) end) > t5.ftransid
+			ORDER BY (case when isnull(t3.ftransid,0) > (case when t1.ftransid > isnull(t2.ftransid,0) then t1.ftransid else isnull(t2.ftransid,0) end) 
+					then isnull(t3.ftransid,0) else (case when t1.ftransid > isnull(t2.ftransid,0) then t1.ftransid else isnull(t2.ftransid,0) end) end)
 			`)
 	if err != nil {
 		return nil, err

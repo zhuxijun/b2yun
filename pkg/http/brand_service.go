@@ -20,6 +20,10 @@ func (s *BrandService) UploadBrands() error {
 		return error
 	}
 
+	if len(brands) == 0 {
+		return nil
+	}
+
 	//----------------------------------------------------
 	path := "/goods/index.php?action=update_brand_info"
 
@@ -35,7 +39,7 @@ func (s *BrandService) UploadBrands() error {
 		return err1
 	}
 
-	brand := brands[len(brands)]
+	brand := brands[len(brands)-1]
 
 	task := root.Task{
 		Name: "BrandEntity",

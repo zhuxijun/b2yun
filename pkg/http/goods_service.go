@@ -14,10 +14,37 @@ type GoodsService struct {
 // UploadGoodss 上传商品信息
 func (s *GoodsService) UploadGoodss() error {
 
-	// 获取商品信息
-	goodss, error := s.goodsService.GetGoodss()
+	//上传商品基本信息
+	error := s.uploadGoodss("GoodsBasicEntity")
 	if error != nil {
 		return error
+	}
+
+	//上传商品价格信息
+	error1 := s.uploadGoodss("GoodsPriceEntity")
+	if error1 != nil {
+		return error1
+	}
+
+	//上传商品库存信息
+	error2 := s.uploadGoodss("GoodsStockEntity")
+	if error2 != nil {
+		return error2
+	}
+
+	return nil
+}
+
+// uploadGoodss 对对对
+func (s *GoodsService) uploadGoodss(entity string) error {
+	// 获取商品信息
+	goodss, error := s.goodsService.GetGoodss(entity)
+	if error != nil {
+		return error
+	}
+
+	if len(goodss) == 0 {
+		return nil
 	}
 
 	//----------------------------------------------------
@@ -34,10 +61,10 @@ func (s *GoodsService) UploadGoodss() error {
 		return err
 	}
 
-	goods := goodss[0]
+	goods := goodss[len(goodss)-1]
 
 	task := root.Task{
-		Name: "GoodsEntity",
+		Name: entity, //"GoodsBasicEntity",
 		ID:   goods.TransID,
 	}
 
@@ -45,51 +72,6 @@ func (s *GoodsService) UploadGoodss() error {
 	if error != nil {
 		return error
 	}
-	//----------------------------------------------------
 
-	// // 上传商品信息
-	// for _, goods := range goodss {
-
-	// 	err := s.updateGoods(goods)
-	// 	if err != nil {
-	// 		s.client.log.Logger.Errorf("本次post商品信息请求出现错误,错误信息[%s]", err)
-	// 		//return err
-	// 	}
-	// }
 	return nil
 }
-
-// // updateGoods 上传单个商品信息
-// func (s *GoodsService) updateGoods(goods root.Goods) error {
-
-// 	path := "/goods/index.php?action=update_goods_info"
-
-// 	// reqStr, err := s.client.getReqStr(goods)
-// 	// if err != nil {
-// 	// 	return err
-// 	// }
-
-// 	output, err := json.Marshal(goods)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	reqStr := string(output)
-
-// 	if err := s.client.Post(path, reqStr); err != nil {
-// 		return err
-// 	}
-
-// 	task := root.Task{
-// 		Name: "GoodsEntity",
-// 		ID:   goods.TransID,
-// 	}
-
-// 	error := s.client.taskService.UpdateID(task)
-// 	if error != nil {
-// 		return error
-// 	}
-
-// 	return nil
-
-// }

@@ -15,7 +15,7 @@ func (s *CatService) GetCats() ([]root.Cat, error) {
 	var models []CatModel
 
 	err := s.session.db.Select(&models,
-		`   SELECT top 1 fitem_clsno = t1.fitem_clsno,
+		`   SELECT fitem_clsno = t1.fitem_clsno,
 				   fitem_clsname = t1.fitem_clsname,
 				   fprt_no = (case when t1.fprt_no = '*' then '' else t1.fprt_no end),
 				   is_show = '1',

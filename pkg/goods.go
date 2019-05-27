@@ -37,5 +37,5 @@ type RankPrice struct {
 
 // Goodser 获取分类接口
 type Goodser interface {
-	GetGoodss() ([]Goods, error)
+	GetGoodss(string) ([]Goods, error)
 }

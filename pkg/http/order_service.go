@@ -13,6 +13,25 @@ type OrderService struct {
 
 //DownOrderInfo 下载订单详情
 func (s *OrderService) DownOrderInfo() error {
+	//获取下载的订单列表
+	path := "/order/index.php?action=get_order_info"
+
+	reqStr, err := s.client.Get(path)
+	if err != nil {
+		return err
+	}
+
+	//插入信息
+	var commonResponse CommonResponseOrder
+	err1 := json.Unmarshal([]byte(reqStr), &commonResponse)
+	if err1 != nil {
+		return err1
+	}
+
+	error := s.orderService.InsertOrders(commonResponse.Data)
+	if error != nil {
+		return error
+	}
 
 	return nil
 }
@@ -24,6 +43,10 @@ func (s *OrderService) CancelOrder() error {
 
 	if error != nil {
 		return error
+	}
+
+	if len(cancelOrders) == 0 {
+		return nil
 	}
 
 	for _, cancelOrder := range cancelOrders {
@@ -38,7 +61,7 @@ func (s *OrderService) CancelOrder() error {
 		task := root.Record{}
 		task.KeyMaps = map[string]string{"forder_sn": cancelOrder.OrderSN}
 		task.Table = ""
-		task.Flags = []string{"flag", "1"}
+		task.Flags = []string{"ftrans_flag", "1"}
 
 		error1 := s.client.taskService.UpdateFlag(task)
 		if error1 != nil {
@@ -56,6 +79,10 @@ func (s *OrderService) UploadOrderInfo() error {
 
 	if error != nil {
 		return error
+	}
+
+	if len(orderStatuss) == 0 {
+		return nil
 	}
 
 	path := "/order/index.php?action=update_order_status"
@@ -78,7 +105,7 @@ func (s *OrderService) UploadOrderInfo() error {
 		task := root.Record{}
 		task.KeyMaps = map[string]string{"forder_sn": orderStatus.OrderSN}
 		task.Table = ""
-		task.Flags = []string{"flag", "1"}
+		task.Flags = []string{"ftrans_flag", "1"}
 
 		error1 := s.client.taskService.UpdateFlag(task)
 		if error1 != nil {

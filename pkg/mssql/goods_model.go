@@ -18,7 +18,7 @@ type GoodsModel struct {
 	GoodsNumber      string      `db:"goods_number"`  // 库存数量
 	GoodsPrice       string      `db:"goods_price"`   // 参考进价
 	ShopPrice        string      `db:"shop_price"`    // 默认商品售价;如存在等级价格时将按等级价格显示
-	RankPrice        []RandPrice // 会员等级价格: user_rank会员等级ID;user_price会员等级价格;
+	RankPrice        []RankPrice // 会员等级价格: user_rank会员等级ID;user_price会员等级价格;
 	GoodsWeight      string      `db:"goods_weight"`       // 商品重量KG
 	WarnNumber       string      `db:"warn_number"`        // 库存预警数量
 	MinNumber        string      `db:"min_number"`         // 配送倍数（订货数量按倍数递增）
@@ -30,11 +30,13 @@ type GoodsModel struct {
 	IsNotAccumulated string      `db:"is_not_accumulated"` // 不计算配送金额（如800元起送，那么这个商品金额不包含在内，需其他商品累计达到800元方达成起送金额）1代表不计算，0代表计算
 	IsNotBonus       string      `db:"is_not_bonus"`       // 不可使用优惠券（红包） 1代表不可使用，0代表可使用
 	IsNotRebonus     string      `db:"is_not_rebonus"`     // 不参与送优惠券（红包）活动 1代表不参与，0代表参与
+	UserRank         string      `db:"user_rank"`          // 会员等级ID
+	UserPrice        string      `db:"user_price"`         // 会员等级价格
 	TransID          string      `db:"ftransid"`           //门店修改时间戳
 }
 
-//RandPrice 商品会员等级、及对应的价格
-type RandPrice struct {
+//RankPrice 商品会员等级、及对应的价格
+type RankPrice struct {
 	UserRank  string `db:"user_rank"`
 	UserPrice string `db:"user_price"`
 }
@@ -55,7 +57,9 @@ func (s GoodsModel) toGoods() root.Goods {
 	goods.GoodsNumber = s.GoodsNumber
 	goods.GoodsPrice = s.GoodsPrice
 	goods.ShopPrice = s.ShopPrice
-	//goods.RankPrice = s.RankPrice
+	// for _, model := range s.RankPrice {
+	// 	goods.RankPrice = append(goods.RankPrice, model.toGoodsPrice())
+	// }
 	goods.GoodsWeight = s.GoodsWeight
 	goods.WarnNumber = s.WarnNumber
 	goods.MinNumber = s.MinNumber
@@ -71,4 +75,15 @@ func (s GoodsModel) toGoods() root.Goods {
 
 	return goods
 
+}
+
+// toGoodsPrice 商品会员等级、价格
+func (s GoodsModel) toGoodsPrice() root.RankPrice {
+
+	var rankPrice root.RankPrice
+
+	rankPrice.UserRank = s.UserRank
+	rankPrice.UserPrice = s.UserPrice
+
+	return rankPrice
 }
