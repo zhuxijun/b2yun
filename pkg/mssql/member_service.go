@@ -46,14 +46,15 @@ func (s *MemberService) InsertMemberInfos(datas []root.ReqMemberInfo) error {
 			if err1 != nil {
 				return err1
 			}
-		} else {
-			_, err1 := s.session.db.Exec(`update t_br_user set fuser_name = ?,faddress_id = ?,faddress_name = ?,fconsignee = ?,ftel = ?,fmobile = ?,femail = ?,fcountry = ?,fprovince = ?,fcity = ?,fdistrict = ?,faddress = ?,fzipcode = ?,fsign_building = ?,fbest_time = ?,foper_time = ? where fuser_no = ?
-				`, data.UserName, data.AddressID, data.AddressName, data.Consignee, data.Tel, data.Mobile, data.Email, data.Country, data.Province, data.City, data.District, data.Address, data.Zipcode, data.SignBuilding, data.BestTime, data.OperTime, data.UserID)
-
-			if err1 != nil {
-				return err1
-			}
 		}
+		// else {
+		// 	_, err1 := s.session.db.Exec(`update t_br_user set fuser_name = ?,faddress_id = ?,faddress_name = ?,fconsignee = ?,ftel = ?,fmobile = ?,femail = ?,fcountry = ?,fprovince = ?,fcity = ?,fdistrict = ?,faddress = ?,fzipcode = ?,fsign_building = ?,fbest_time = ?,foper_time = ? where fuser_no = ?
+		// 		`, data.UserName, data.AddressID, data.AddressName, data.Consignee, data.Tel, data.Mobile, data.Email, data.Country, data.Province, data.City, data.District, data.Address, data.Zipcode, data.SignBuilding, data.BestTime, data.OperTime, data.UserID)
+
+		// 	if err1 != nil {
+		// 		return err1
+		// 	}
+		// }
 
 	}
 

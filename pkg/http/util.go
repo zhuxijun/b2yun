@@ -97,7 +97,7 @@ type CommonResponse struct {
 	ErrMsg      string `json:"message"`
 	TimeStamp   int64  `json:"timestamp"`
 	AccessToken string `json:"access_token"`
-	Pages       int    `json:"pages"`
+	Pages       string `json:"pages"`
 	Next        bool   `json:"next"`
 }
 
@@ -108,7 +108,7 @@ type CommonResponseOrder struct {
 	TimeStamp   int64           `json:"timestamp"`
 	AccessToken string          `json:"access_token"`
 	Data        []root.ReqOrder `json:"data"`
-	Pages       int             `json:"pages"`
+	Pages       string          `json:"pages"`
 	Next        bool            `json:"next"`
 }
 
@@ -119,7 +119,7 @@ type CommonResponseMemberLevel struct {
 	TimeStamp   int64                 `json:"timestamp"`
 	AccessToken string                `json:"access_token"`
 	Data        []root.ReqMemberLevel `json:"data"`
-	Pages       int                   `json:"pages"`
+	Pages       string                `json:"pages"`
 	Next        bool                  `json:"next"`
 }
 
@@ -130,6 +130,6 @@ type CommonResponseMemberInfo struct {
 	TimeStamp   int64                `json:"timestamp"`
 	AccessToken string               `json:"access_token"`
 	Data        []root.ReqMemberInfo `json:"data"`
-	Pages       int                  `json:"pages"`
+	Pages       string               `json:"pages"`
 	Next        bool                 `json:"next"`
 }

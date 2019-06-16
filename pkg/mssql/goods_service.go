@@ -54,7 +54,7 @@ func getStr(entity string) string {
 
 	if entity == "GoodsBasicEntity" {
 		sql = `   
-		select 
+		select top 500
 			goods_sn = CAST(t1.fitem_id as varchar(10)),   --	商品货号(第三方商品唯一标识)
 			goods_name = t1.fitem_name,    --	商品名称
 			cat_sn = t1.fitem_clsno,   --	自定义类别ID
@@ -97,13 +97,14 @@ func getStr(entity string) string {
 		`
 	} else if entity == "GoodsPriceEntity" {
 		sql = `
-		select 
+		select top 500
 			goods_sn = CAST(t1.fitem_id as varchar(10)),   --	商品货号(第三方商品唯一标识)
 			goods_name = t1.fitem_name,    --	商品名称
+			cat_sn = t1.fitem_clsno,   --	自定义类别ID
 			shop_price = CAST(t222.fps_price as varchar(18)), --默认商品售价;如存在等级价格时将按等级价格显示
 			user_rank = t22.flevel_no,   --会员等级
 			user_price = CAST(t2.fps_price as varchar(18)),  --默认商品售价;如存在等级价格时将按等级价格显示
-			ftransid = (select max(ftransid) from t_bn_bi)
+			ftransid = t2.ftransid	--(select max(ftransid) from t_bn_bi)
 			from t_bi_master t1 
 			inner join t_bn_bi t2 on (t1.fitem_id = t2.fitem_id)
 			inner join t_bn_master t22 on (t2.fbn_no = t22.fbn_no)
@@ -111,13 +112,14 @@ func getStr(entity string) string {
 			left join ts_t_transtype_info_mtq t5  WITH (NOLOCK) on (t5.fun_name='GoodsPriceEntity')
 		where t1.fstatus >= '5' and t1.freward_type = '0' and t1.fbom_type = '0' and isnull(t22.flevel_no,'') <> ''
 		and t2.ftransid > t5.ftransid
-		order by t1.fitem_id,cast(t22.flevel_no as int)
+		order by t2.ftransid	--t1.fitem_id,cast(t22.flevel_no as int)
 		`
 	} else {
 		sql = `   
-		select 
+		select top 500
 			goods_sn = cast(t1.fitem_id as varchar(10)),   --	商品货号(第三方商品唯一标识)
 			goods_name = t1.fitem_name,    --	商品名称
+			cat_sn = t1.fitem_clsno,   --	自定义类别ID
 			goods_number = cast(isnull(isnull(t6.fqty,t7.fqty),0) as varchar(19)),    --库存数量
 			ftransid = 		 (case when t6.ftransid > isnull(t7.ftransid,0) then t6.ftransid else isnull(t7.ftransid,0) end)
 			from t_bi_master t1

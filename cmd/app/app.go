@@ -81,13 +81,13 @@ func (a *App) Run() error {
 		return err
 	}
 
-	// // //3)商品信息传输POST
-	// goodsService := a.httpClient.GoodsService()
-	// if err := goodsService.UploadGoodss(); err != nil {
-	// 	return err
-	// }
+	// //3)商品信息传输POST
+	goodsService := a.httpClient.GoodsService()
+	if err := goodsService.UploadGoodss(); err != nil {
+		return err
+	}
 
-	//二、订单相关
+	// // //二、订单相关
 	orderService := a.httpClient.OrderService()
 	//1)获取订单详情GET
 	if err := orderService.DownOrderInfo(); err != nil {

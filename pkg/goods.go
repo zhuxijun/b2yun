@@ -4,7 +4,7 @@ package root
 type Goods struct {
 	GoodsSN          string      `json:"goods_sn"`                     // (是、是)商品货号
 	GoodsName        string      `json:"goods_name"`                   // (是、否)商品名称
-	CatSN            string      `json:"cat_sn,omitempty"`             // (是、否)类别ID
+	CatSN            string      `json:"cat_sn"`                       // (是、否)类别ID
 	BrandSN          string      `json:"brand_sn,omitempty"`           // 品牌ID
 	SuppliersID      string      `json:"suppliers_id,omitempty"`       // 货商ID;0为自营商品,其他对应货商id则为货商商品
 	GoodsBarcode     string      `json:"goods_barcode,omitempty"`      // 条码; 多个条码，请用英文逗号（“,”）隔开。
