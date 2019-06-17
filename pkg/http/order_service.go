@@ -104,7 +104,7 @@ func (s *OrderService) UploadOrderInfo() error {
 	for _, orderStatus := range orderStatuss {
 		task := root.Record{}
 		task.KeyMaps = map[string]string{"forder_sn": orderStatus.OrderSN}
-		task.Table = ""
+		task.Table = "b2yun_order_master"
 		task.Flags = []string{"ftrans_flag", "1"}
 
 		error1 := s.client.taskService.UpdateFlag(task)
