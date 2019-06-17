@@ -74,11 +74,12 @@ func (s *MemberService) GetMemberInfos() ([]root.MemberInfo, error) {
 				ftransid = (case when isnull(t3.ftransid,0) > (case when t1.ftransid > isnull(t2.ftransid,0) then t1.ftransid else isnull(t2.ftransid,0) end) 
 						then isnull(t3.ftransid,0) else (case when t1.ftransid > isnull(t2.ftransid,0) then t1.ftransid else isnull(t2.ftransid,0) end) end)
 			from t_br_user t1
-			left join t_br_master t2 on t1.fbrh_no = t2.fbrh_no
-			left join t_bn_master t3 on t2.fbn_no = t3.fbn_no
+			inner join t_br_master t2 on t1.fbrh_no = t2.fbrh_no
+			inner join t_bn_master t3 on t2.fbn_no = t3.fbn_no
 			left join ts_t_transtype_info_mtq t5 WITH (NOLOCK) on (t5.fun_name='MemberInfoEntity')
-			WHERE (case when isnull(t3.ftransid,0) > (case when t1.ftransid > isnull(t2.ftransid,0) then t1.ftransid else isnull(t2.ftransid,0) end) 
-				then isnull(t3.ftransid,0) else (case when t1.ftransid > isnull(t2.ftransid,0) then t1.ftransid else isnull(t2.ftransid,0) end) end) > t5.ftransid
+			WHERE t1.fstatus = '1'
+				and (case when isnull(t3.ftransid,0) > (case when t1.ftransid > isnull(t2.ftransid,0) then t1.ftransid else isnull(t2.ftransid,0) end) 
+					then isnull(t3.ftransid,0) else (case when t1.ftransid > isnull(t2.ftransid,0) then t1.ftransid else isnull(t2.ftransid,0) end) end) > t5.ftransid
 			ORDER BY (case when isnull(t3.ftransid,0) > (case when t1.ftransid > isnull(t2.ftransid,0) then t1.ftransid else isnull(t2.ftransid,0) end) 
 					then isnull(t3.ftransid,0) else (case when t1.ftransid > isnull(t2.ftransid,0) then t1.ftransid else isnull(t2.ftransid,0) end) end)
 			`)

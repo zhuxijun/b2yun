@@ -10,7 +10,7 @@ type OrderService struct {
 	session *Session
 }
 
-// InsertOrders 将获取到的会员等级插入erp数据库
+// InsertOrders 将获取到的订单信息插入erp数据库
 func (s *OrderService) InsertOrders(datas []root.ReqOrder) error {
 
 	var fordersn string
@@ -73,14 +73,28 @@ func (s *OrderService) GetOrderCancels() ([]root.OrderCancel, error) {
 }
 
 // GetOrderStatuss 获取需要更新物流状态的订单列表
+/*100	已确认（取单）
+500	已分单（打印）
+530	配货中（分拣/复核）
+510	已发货（出车）
+122	完成（结算）*/
 func (s *OrderService) GetOrderStatuss() ([]root.OrderStatus, error) {
 	var models []OrderStatusModel
 
 	err := s.session.db.Select(&models, `
-			select order_sn = forder_sn
-			from b2yun_order_master
-			where fstatus in ('1','2','3','4','5')
-			  and ftrans_flag = '0'`)
+			select order_sn = t1.forder_sn,
+				order_status = (case when t1.fstatus = '1' then '100' 
+									when t1.fstatus = '2' then '500' 
+									when t1.fstatus = '3' then '530' 
+									when t1.fstatus = '4' then '510' 
+									when t1.fstatus = '5' then '122' 
+								else '100' end),
+				invoice_no = (case when t1.fstatus = '4' then t2.fsheet_no else '' end),
+				action_note = ''
+			from b2yun_order_master t1
+			left join t_cd_detail t2 on t1.fsheet_no_ds = t2.fsheet_no_ds
+			where t1.fstatus in ('1','2','3','4','5')
+			  and t1.ftrans_flag = '0'`)
 
 	if err != nil {
 		return nil, err

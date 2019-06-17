@@ -71,10 +71,10 @@ type OrderCancel struct {
 510	已发货（出车）
 122	完成（结算）*/
 type OrderStatus struct {
-	OrderSN     string `json:"order_sn"`     //是否必须：是	所要查询状态的订单号,不提交订单号则返回全部订单号及状态码
-	OrderStatus string `json:"order_status"` //是否必须：是	需要更新的订单状态码
-	InvoiceNO   string `json:"invoice_no"`   //是否必须：是	510 已发货（出车）状态时必须，多个发货单号，请用英文逗号（“,”）隔开。
-	ActionNote  string `json:"action_note"`  //是否必须：否	操作备注信息。510 已发货（出车）状态时为配送信息如：“张三:13800138000”。
+	OrderSN     string `json:"order_sn"`              //是否必须：是	所要查询状态的订单号,不提交订单号则返回全部订单号及状态码
+	OrderStatus string `json:"order_status"`          //是否必须：是	需要更新的订单状态码
+	InvoiceNO   string `json:"invoice_no,omitempty"`  //是否必须：是	510 已发货（出车）状态时必须，多个发货单号，请用英文逗号（“,”）隔开。
+	ActionNote  string `json:"action_note,omitempty"` //是否必须：否	操作备注信息。510 已发货（出车）状态时为配送信息如：“张三:13800138000”。
 }
 
 // Orderer 订单相关接口

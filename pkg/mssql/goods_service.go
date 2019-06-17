@@ -48,6 +48,7 @@ func (s *GoodsService) GetGoodss(entity string) ([]root.Goods, error) {
 }
 
 // getStr 将商品信息拆分成三部分获取（basic基本信息，price价格信息，stock库存信息）
+// 商品状态(0:草稿/1:待批/2:部分审核/3:驳回/5:新品/6:正常/7:停购/B:停配/8:停销/9:已淘汰/A:已作废)
 func getStr(entity string) string {
 
 	var sql string
@@ -70,7 +71,7 @@ func getStr(entity string) string {
 			--rank_price = '1.3',  --会员等级价格: user_rank会员等级ID;user_price会员等级价格;
 			goods_weight = '',    --商品重量KG
 			warn_number = '', --库存预警数量
-			min_number = cast(t1.fdc_spec_num as varchar(10)),  --	配送倍数（订货数量按倍数递增）
+			min_number = cast(t1.fdc_min_qty as varchar(10)),  --	配送倍数（订货数量按倍数递增）
 			limite_number = '',   --限购数量
 			is_on_sale = (case when t1.fstatus in ('5','6','7') then '1' else '0' end),  --销售状态 1上架,0下架
 			is_best = ISNULL(t4.frec_flag,'0'), --是否为精品;1是,0不是
