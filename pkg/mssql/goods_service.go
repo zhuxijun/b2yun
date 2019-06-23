@@ -49,6 +49,7 @@ func (s *GoodsService) GetGoodss(entity string) ([]root.Goods, error) {
 
 // getStr 将商品信息拆分成三部分获取（basic基本信息，price价格信息，stock库存信息）
 // 商品状态(0:草稿/1:待批/2:部分审核/3:驳回/5:新品/6:正常/7:停购/B:停配/8:停销/9:已淘汰/A:已作废)
+// 基本信息传输>=5的商品，价格和库存传输=(5,6,7)的商品
 func getStr(entity string) string {
 
 	var sql string
@@ -71,7 +72,7 @@ func getStr(entity string) string {
 			--rank_price = '1.3',  --会员等级价格: user_rank会员等级ID;user_price会员等级价格;
 			goods_weight = '',    --商品重量KG
 			warn_number = '', --库存预警数量
-			min_number = cast(t1.fdc_min_qty as varchar(10)),  --	配送倍数（订货数量按倍数递增）
+			min_number = cast((case when fdc_num_flag = '1' then t1.fdc_spec_num else t1.fdc_min_qty end) as varchar(10)),  --配送倍数（订货数量按倍数递增）
 			limite_number = '',   --限购数量
 			is_on_sale = (case when t1.fstatus in ('5','6','7') then '1' else '0' end),  --销售状态 1上架,0下架
 			is_best = ISNULL(t4.frec_flag,'0'), --是否为精品;1是,0不是
@@ -111,13 +112,13 @@ func getStr(entity string) string {
 			inner join t_bn_master t22 on (t2.fbn_no = t22.fbn_no)
 			left join t_bn_bi t222 on (t1.fitem_id = t222.fitem_id and t222.fbn_no = '0000')
 			left join ts_t_transtype_info_mtq t5  WITH (NOLOCK) on (t5.fun_name='GoodsPriceEntity')
-		where t1.fstatus >= '5' and t1.freward_type = '0' and t1.fbom_type = '0' and isnull(t22.flevel_no,'') <> ''
+		where t1.fstatus in ('5','6','7') and t1.freward_type = '0' and t1.fbom_type = '0' and isnull(t22.flevel_no,'') <> ''
 		and t2.ftransid > t5.ftransid
 		order by t2.ftransid	--t1.fitem_id,cast(t22.flevel_no as int)
 		`
 	} else {
 		sql = `   
-		select top 500
+		select 
 			goods_sn = cast(t1.fitem_id as varchar(10)),   --	商品货号(第三方商品唯一标识)
 			goods_name = t1.fitem_name,    --	商品名称
 			cat_sn = t1.fitem_clsno,   --	自定义类别ID
@@ -131,11 +132,29 @@ func getStr(entity string) string {
 			left join (select fitem_id,SUM(fqty) as fqty,MAX(ftransid) as ftransid from t_sk_master_03
 			            where fitem_id in (select fitem_id from t_sk_master_03 where ftransid > (select ftransid from ts_t_transtype_info_mtq where fun_name='GoodsStockEntity')) 
 			            group by fitem_id) t7 on (t1.fitem_id = t7.fitem_id)
-		where t1.fstatus >= '5' and t1.freward_type = '0' and t1.fbom_type = '0'
-		and (ISNULL(t6.fqty,0) <> 0 or ISNULL(t7.fqty,0) <> 0)
-		and (case when t6.ftransid > isnull(t7.ftransid,0) then t6.ftransid else isnull(t7.ftransid,0) end) > t5.ftransid
-		order by (case when t6.ftransid > isnull(t7.ftransid,0) then t6.ftransid else isnull(t7.ftransid,0) end)
+		where t1.fstatus in ('5','6','7') and t1.freward_type = '0' and t1.fbom_type = '0'
 		`
+		/*
+			sql = `
+			select top 500
+				goods_sn = cast(t1.fitem_id as varchar(10)),   --	商品货号(第三方商品唯一标识)
+				goods_name = t1.fitem_name,    --	商品名称
+				cat_sn = t1.fitem_clsno,   --	自定义类别ID
+				goods_number = cast(isnull(isnull(t6.fqty,t7.fqty),0) as varchar(19)),    --库存数量
+				ftransid = 		 (case when t6.ftransid > isnull(t7.ftransid,0) then t6.ftransid else isnull(t7.ftransid,0) end)
+				from t_bi_master t1
+				left join ts_t_transtype_info_mtq t5  WITH (NOLOCK) on (t5.fun_name='GoodsStockEntity')
+				left join (select fitem_id,SUM(fqty) as fqty,MAX(ftransid) as ftransid from t_sk_master_02
+				            where fitem_id in (select fitem_id from t_sk_master_02 where ftransid > (select ftransid from ts_t_transtype_info_mtq where fun_name='GoodsStockEntity'))
+				            group by fitem_id) t6 on (t1.fitem_id = t6.fitem_id)
+				left join (select fitem_id,SUM(fqty) as fqty,MAX(ftransid) as ftransid from t_sk_master_03
+				            where fitem_id in (select fitem_id from t_sk_master_03 where ftransid > (select ftransid from ts_t_transtype_info_mtq where fun_name='GoodsStockEntity'))
+				            group by fitem_id) t7 on (t1.fitem_id = t7.fitem_id)
+			where t1.fstatus in ('5','6','7') and t1.freward_type = '0' and t1.fbom_type = '0'
+			and (ISNULL(t6.fqty,0) <> 0 or ISNULL(t7.fqty,0) <> 0)
+			and (case when t6.ftransid > isnull(t7.ftransid,0) then t6.ftransid else isnull(t7.ftransid,0) end) > t5.ftransid
+			order by (case when t6.ftransid > isnull(t7.ftransid,0) then t6.ftransid else isnull(t7.ftransid,0) end)
+			`*/
 	}
 	return sql
 }

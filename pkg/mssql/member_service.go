@@ -14,6 +14,12 @@ type MemberService struct {
 func (s *MemberService) InsertMemberLevels(datas []root.ReqMemberLevel) error {
 
 	var flevelno string
+	_, err3 := s.session.db.Exec("delete from t_bn_level_interface")
+
+	if err3 != nil {
+		return err3
+	}
+
 	for _, data := range datas {
 
 		err := s.session.db.QueryRow("select flevel_no as flevelno from t_bn_level where flevel_no = ?", data.RankID).Scan(&flevelno)
@@ -26,6 +32,12 @@ func (s *MemberService) InsertMemberLevels(datas []root.ReqMemberLevel) error {
 			}
 		}
 
+		//每次获取数据记录至备份表，在数据库作业中定时将“会员名称有变”或“会员已被删除的记录”，需要通过过程来处理，放入del表同步本地库
+		_, err2 := s.session.db.Exec("insert into t_bn_level_interface(flevel_no,flevel_name) values(?,?)", data.RankID, data.RankName)
+
+		if err2 != nil {
+			return err2
+		}
 	}
 
 	return nil
@@ -77,7 +89,7 @@ func (s *MemberService) GetMemberInfos() ([]root.MemberInfo, error) {
 			inner join t_br_master t2 on t1.fbrh_no = t2.fbrh_no
 			inner join t_bn_master t3 on t2.fbn_no = t3.fbn_no
 			left join ts_t_transtype_info_mtq t5 WITH (NOLOCK) on (t5.fun_name='MemberInfoEntity')
-			WHERE t1.fstatus = '1'
+			WHERE t1.fstatus = '1' and t2.fstatus = '5'
 				and (case when isnull(t3.ftransid,0) > (case when t1.ftransid > isnull(t2.ftransid,0) then t1.ftransid else isnull(t2.ftransid,0) end) 
 					then isnull(t3.ftransid,0) else (case when t1.ftransid > isnull(t2.ftransid,0) then t1.ftransid else isnull(t2.ftransid,0) end) end) > t5.ftransid
 			ORDER BY (case when isnull(t3.ftransid,0) > (case when t1.ftransid > isnull(t2.ftransid,0) then t1.ftransid else isnull(t2.ftransid,0) end) 
