@@ -20,7 +20,7 @@ func (s *BrandService) GetBrands() ([]root.Brand, error) {
 				   is_show = '1',
 				   ftransid = (select max(ftransid) from t_bb_master)
 			FROM t_bb_master t1
-			LEFT JOIN ts_t_transtype_info_mtq t5 WITH (NOLOCK) on (t5.fun_name='BrandEntity')
+			LEFT JOIN ts_t_transtype_info_mtq t5 on (t5.fun_name='BrandEntity')
 			WHERE t1.ftransid > t5.ftransid
 			ORDER BY t1.ftransid asc`)
 

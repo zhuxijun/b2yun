@@ -87,7 +87,7 @@ func getStr(entity string) string {
 			--inner join t_bn_bi t2 on (t1.fitem_id = t2.fitem_id and t2.fbn_no = '0000')
 			left join app_t_bi_new t3 on (t1.fitem_id = t3.fitem_id)
 			left join app_t_bi_recommand t4 on (t1.fitem_id = t4.fitem_id)
-			left join ts_t_transtype_info_mtq t5  WITH (NOLOCK) on (t5.fun_name='GoodsBasicEntity')
+			left join ts_t_transtype_info_mtq t5 on (t5.fun_name='GoodsBasicEntity')
 			--left join (select fitem_id,SUM(fqty) as fqty from t_sk_master_02 group by fitem_id) t6 on (t1.fitem_id = t6.fitem_id)
 			--left join (select fitem_id,SUM(fqty) as fqty from t_sk_master_03 group by fitem_id) t7 on (t1.fitem_id = t7.fitem_id)
 			left join t_bi_price t8 on (t1.fitem_id = t8.fitem_id)
@@ -111,7 +111,7 @@ func getStr(entity string) string {
 			inner join t_bn_bi t2 on (t1.fitem_id = t2.fitem_id)
 			inner join t_bn_master t22 on (t2.fbn_no = t22.fbn_no)
 			left join t_bn_bi t222 on (t1.fitem_id = t222.fitem_id and t222.fbn_no = '0000')
-			left join ts_t_transtype_info_mtq t5  WITH (NOLOCK) on (t5.fun_name='GoodsPriceEntity')
+			left join ts_t_transtype_info_mtq t5 on (t5.fun_name='GoodsPriceEntity')
 		where t1.fstatus in ('5','6','7') and t1.freward_type = '0' and t1.fbom_type = '0' and isnull(t22.flevel_no,'') <> ''
 		and t2.ftransid > t5.ftransid
 		order by t2.ftransid	--t1.fitem_id,cast(t22.flevel_no as int)
@@ -123,14 +123,13 @@ func getStr(entity string) string {
 			goods_name = t1.fitem_name,    --	商品名称
 			cat_sn = t1.fitem_clsno,   --	自定义类别ID
 			goods_number = cast(isnull(isnull(t6.fqty,t7.fqty),0) as varchar(19)),    --库存数量
-			ftransid = 		 (case when t6.ftransid > isnull(t7.ftransid,0) then t6.ftransid else isnull(t7.ftransid,0) end)
+			ftransid = 	0
 			from t_bi_master t1
-			left join ts_t_transtype_info_mtq t5  WITH (NOLOCK) on (t5.fun_name='GoodsStockEntity')
-			left join (select fitem_id,SUM(fqty) as fqty,MAX(ftransid) as ftransid from t_sk_master_02
-			            where fitem_id in (select fitem_id from t_sk_master_02 where ftransid > (select ftransid from ts_t_transtype_info_mtq where fun_name='GoodsStockEntity')) 
+			left join (select fitem_id,SUM(fqty) as fqty from t_sk_master_02
+			            where fitem_id in (select fitem_id from t_sk_master_02) 
 			            group by fitem_id) t6 on (t1.fitem_id = t6.fitem_id)
-			left join (select fitem_id,SUM(fqty) as fqty,MAX(ftransid) as ftransid from t_sk_master_03
-			            where fitem_id in (select fitem_id from t_sk_master_03 where ftransid > (select ftransid from ts_t_transtype_info_mtq where fun_name='GoodsStockEntity')) 
+			left join (select fitem_id,SUM(fqty) as fqty from t_sk_master_03
+			            where fitem_id in (select fitem_id from t_sk_master_03) 
 			            group by fitem_id) t7 on (t1.fitem_id = t7.fitem_id)
 		where t1.fstatus in ('5','6','7') and t1.freward_type = '0' and t1.fbom_type = '0'
 		`
@@ -143,7 +142,7 @@ func getStr(entity string) string {
 				goods_number = cast(isnull(isnull(t6.fqty,t7.fqty),0) as varchar(19)),    --库存数量
 				ftransid = 		 (case when t6.ftransid > isnull(t7.ftransid,0) then t6.ftransid else isnull(t7.ftransid,0) end)
 				from t_bi_master t1
-				left join ts_t_transtype_info_mtq t5  WITH (NOLOCK) on (t5.fun_name='GoodsStockEntity')
+				left join ts_t_transtype_info_mtq t5 on (t5.fun_name='GoodsStockEntity')
 				left join (select fitem_id,SUM(fqty) as fqty,MAX(ftransid) as ftransid from t_sk_master_02
 				            where fitem_id in (select fitem_id from t_sk_master_02 where ftransid > (select ftransid from ts_t_transtype_info_mtq where fun_name='GoodsStockEntity'))
 				            group by fitem_id) t6 on (t1.fitem_id = t6.fitem_id)

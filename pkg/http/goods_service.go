@@ -35,7 +35,7 @@ func (s *GoodsService) UploadGoodss() error {
 	return nil
 }
 
-// uploadGoodss 对对对
+// uploadGoodss 对对对上传商品信息
 func (s *GoodsService) uploadGoodss(entity string) error {
 	// 获取商品信息
 	goodss, error := s.goodsService.GetGoodss(entity)

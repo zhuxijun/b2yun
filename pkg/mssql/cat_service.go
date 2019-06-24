@@ -21,7 +21,7 @@ func (s *CatService) GetCats() ([]root.Cat, error) {
 				   is_show = '1',
 				   ftransid = (select max(ftransid) from t_bc_master)
 			FROM t_bc_master t1
-			LEFT JOIN ts_t_transtype_info_mtq t5 WITH (NOLOCK) on (t5.fun_name='CatEntity')
+			LEFT JOIN ts_t_transtype_info_mtq t5 on (t5.fun_name='CatEntity')
 			WHERE t1.ftransid > t5.ftransid
 			ORDER BY t1.fitem_clsno asc`)
 
